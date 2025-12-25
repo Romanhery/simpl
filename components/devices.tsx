@@ -10,7 +10,7 @@ export default async function Devices() {
     const { data: all_readings, error } = await supabase
         .from("sensor_readings")
         .select("*")
-        .order('created_at', { ascending: false });
+        .order('timestamp', { ascending: false });
 
     if (error) {
         return (
@@ -22,7 +22,7 @@ export default async function Devices() {
 
     // 2. THE 10X FILTER: Only keep the newest reading for each unique device name
     const latestReadingsMap = new Map();
-    
+
     all_readings?.forEach((reading) => {
         // Because we ordered by newest first, the first time we see a name, 
         // it is the most recent data for that plant.
@@ -37,7 +37,7 @@ export default async function Devices() {
     return (
         <div className="p-6 bg-slate-50 min-h-screen">
             <h1 className="text-3xl font-bold text-slate-800 mb-8 tracking-tight">Hydroponic Dashboard</h1>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* 4. Map over the UNIQUE readings instead of ALL readings */}
                 {unique_readings.map((reading) => (
@@ -83,7 +83,7 @@ export default async function Devices() {
 
                                 <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-slate-400 text-[10px] font-medium uppercase tracking-tight">
                                     <Clock className="h-3 w-3" />
-                                    Last Sync: {new Date(reading.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    Last Sync: {new Date(reading.timestamp || reading.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </div>
                             </CardContent>
                         </Card>
