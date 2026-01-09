@@ -9,7 +9,6 @@ import { sendCommand } from '@/app/devices/[id]/actions'
 export default function Controls() {
     const [devices, setDevices] = useState<any[]>([])
     const [selectedDevice, setSelectedDevice] = useState<string>('')
-    const [loading, setLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState<string | null>(null)
 
     const supabase = createBrowserClient(
@@ -33,7 +32,6 @@ export default function Controls() {
                     setSelectedDevice(data[0].device_name)
                 }
             }
-            setLoading(false)
         }
         fetchDevices()
     }, [])
@@ -58,27 +56,6 @@ export default function Controls() {
             // Simulate a small delay for better UX so user sees the loading state
             setTimeout(() => setActionLoading(null), 500)
         }
-    }
-
-    if (loading) {
-        return (
-            <div className="flex h-[50vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-            </div>
-        )
-    }
-
-    if (devices.length === 0) {
-        return (
-            <div className="flex flex-col items-center justify-center p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                <Droplets className="handleTurnOnt-slate-300 mb-4" />
-                <h3 className="text-lg font-bold text-slate-700">No Devices Found</h3>
-                <p className="text-slate-500 max-w-xs mt-2">You need to pair a device before you can control it.</p>
-                <a href="/setup" className="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors">
-                    Add Device
-                </a>
-            </div>
-        )
     }
 
     return (
@@ -116,19 +93,19 @@ export default function Controls() {
                 <div className="p-8 grid gap-6">
 
                     <button
-                        onClick={() => handleCommand('PUMP_ON')}
+                        onClick={() => handleCommand('true')}
                         disabled={!!actionLoading}
                         className={`
               group relative overflow-hidden w-full p-6 rounded-2xl border-2 transition-all duration-300
-              ${actionLoading === 'PUMP_ON' ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200 hover:border-green-500 hover:shadow-lg hover:shadow-green-500/10'}
+              ${actionLoading === 'true' ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200 hover:border-green-500 hover:shadow-lg hover:shadow-green-500/10'}
             `}
                     >
                         <div className="flex items-center gap-6">
-                            <div className={`p-4 rounded-full transition-colors ${actionLoading === 'PUMP_ON' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-600 group-hover:bg-green-500 group-hover:text-white'}`}>
-                                {actionLoading === 'PUMP_ON' ? <Loader2 className="animate-spin h-8 w-8" /> : <Zap className="h-8 w-8" />}
+                            <div className={`p-4 rounded-full transition-colors ${actionLoading === 'true' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-600 group-hover:bg-green-500 group-hover:text-white'}`}>
+                                {actionLoading === 'true' ? <Loader2 className="animate-spin h-8 w-8" /> : <Zap className="h-8 w-8" />}
                             </div>
                             <div className="text-left">
-                                <h3 className={`text-xl font-black mb-1 transition-colors ${actionLoading === 'PUMP_ON' ? 'text-green-800' : 'text-slate-800 group-hover:text-green-700'}`}>
+                                <h3 className={`text-xl font-black mb-1 transition-colors ${actionLoading === 'true' ? 'text-green-800' : 'text-slate-800 group-hover:text-green-700'}`}>
                                     TURN PUMP ON
                                 </h3>
                                 <p className="text-sm text-slate-500 font-medium">Force the water pump to start immediately.</p>
@@ -137,19 +114,19 @@ export default function Controls() {
                     </button>
 
                     <button
-                        onClick={() => handleCommand('PUMP_OFF')}
+                        onClick={() => handleCommand('false')}
                         disabled={!!actionLoading}
                         className={`
               group relative overflow-hidden w-full p-6 rounded-2xl border-2 transition-all duration-300
-              ${actionLoading === 'PUMP_OFF' ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/10'}
+              ${actionLoading === 'false' ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/10'}
             `}
                     >
                         <div className="flex items-center gap-6">
-                            <div className={`p-4 rounded-full transition-colors ${actionLoading === 'PUMP_OFF' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-600 group-hover:bg-red-500 group-hover:text-white'}`}>
-                                {actionLoading === 'PUMP_OFF' ? <Loader2 className="animate-spin h-8 w-8" /> : <ZapOff className="h-8 w-8" />}
+                            <div className={`p-4 rounded-full transition-colors ${actionLoading === 'false' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-600 group-hover:bg-red-500 group-hover:text-white'}`}>
+                                {actionLoading === 'false' ? <Loader2 className="animate-spin h-8 w-8" /> : <ZapOff className="h-8 w-8" />}
                             </div>
                             <div className="text-left">
-                                <h3 className={`text-xl font-black mb-1 transition-colors ${actionLoading === 'PUMP_OFF' ? 'text-red-800' : 'text-slate-800 group-hover:text-red-700'}`}>
+                                <h3 className={`text-xl font-black mb-1 transition-colors ${actionLoading === 'false' ? 'text-red-800' : 'text-slate-800 group-hover:text-red-700'}`}>
                                     TURN PUMP OFF
                                 </h3>
                                 <p className="text-sm text-slate-500 font-medium">Deactivate the water pump immediately.</p>
