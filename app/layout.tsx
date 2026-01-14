@@ -24,36 +24,25 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+// 1. Define the user data at the top of your Layout function
+const currentUser = {
+  name: "Roman Sultani",
+  email: "inatlusnamor@gmail.com",
+  avatar: "" // You can add a URL here later
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        
-        {/* 2. WRAP EVERYTHING IN SIDEBAR PROVIDER */}
+      <body>
         <SidebarProvider defaultOpen={true}>
           
-          {/* 3. ADD THE SIDEBAR ITSELF */}
-          <AppSidebar />
+          {/* 2. PASS THE USER TO THE SIDEBAR */}
+          <AppSidebar user={currentUser} />
           
-          {/* 4. MAIN CONTENT AREA */}
-          <main className="w-full min-h-screen bg-gray-50">
-            
-            {/* The Header with the Toggle Button */}
-            <div className="p-4 flex items-center gap-2 border-b bg-white sticky top-0 z-10">
-              <SidebarTrigger /> {/* <--- CLICKING THIS OPENS/CLOSES THE MENU */}
-              <span className="font-bold text-lg">Smart Plant App</span>
-            </div>
-
-            {/* Your Actual Page Content */}
-            <div className="p-4">
-              <RealtimeListener />
-              {children}
-            </div>
-          </main>
+          
+            {/* ... rest of your code ... */}
+            <main className="w-full min-h-screen bg-gray-50"></main>
 
           {/* ChatBot stays floating above everything */}
           <ChatBot />
