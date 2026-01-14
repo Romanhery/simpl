@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { Zap, ZapOff, Loader2, Droplets, Link, ChevronRight, ChevronLeft } from 'lucide-react'
-import { sendCommand } from '@/app/devices/[id]/actions'
+import { sendCommand } from '@/app/(dashboard)/devices/[id]/actions'
 // import { toast } from 'sonner' // Assuming sonner is used, or basic alert
 
 export default function Controls() {
