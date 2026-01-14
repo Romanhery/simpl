@@ -24,25 +24,44 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-// 1. Define the user data at the top of your Layout function
-const currentUser = {
+// Define a default user to prevent TypeScript "undefined" errors
+const defaultUser = {
   name: "Roman Sultani",
   email: "inatlusnamor@gmail.com",
-  avatar: "" // You can add a URL here later
+  avatar: "", // Add a URL here later if you have one
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        
+        {/* 2. WRAP EVERYTHING IN SIDEBAR PROVIDER */}
         <SidebarProvider defaultOpen={true}>
           
-          {/* 2. PASS THE USER TO THE SIDEBAR */}
-          <AppSidebar user={currentUser} />
+          {/* 3. ADD THE SIDEBAR ITSELF - Pass the user prop here */}
+          <AppSidebar user={defaultUser} />
           
-          
-            {/* ... rest of your code ... */}
-            <main className="w-full min-h-screen bg-gray-50"></main>
+          {/* 4. MAIN CONTENT AREA */}
+          <main className="w-full min-h-screen bg-gray-50 flex flex-col">
+            
+            {/* The Header with the Toggle Button */}
+            <header className="p-4 flex items-center gap-2 border-b bg-white sticky top-0 z-10">
+              <SidebarTrigger /> 
+              <div className="h-4 w-[1px] bg-gray-200 mx-2" />
+              <span className="font-bold text-lg">Smart Plant App</span>
+            </header>
+
+            {/* Your Actual Page Content */}
+            <div className="flex-1 p-6">
+              <RealtimeListener />
+              {children}
+            </div>
+          </main>
 
           {/* ChatBot stays floating above everything */}
           <ChatBot />
