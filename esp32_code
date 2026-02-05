@@ -1,0 +1,101 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+#include <WiFiManager.h> 
+#include "DHT.h"
+
+#define DHTPIN 4
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+// 1. SUPABASE RPC SETTINGS
+const char* supabase_url = "https://juaaocqwwczwoiphiphj.supabase.co/rest/v1/rpc/add_secure_reading";
+const char* supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1YWFvY3F3d2N6d29pcGhpcGhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMTcxOTEsImV4cCI6MjA3OTU5MzE5MX0.0MQxvseTj797AU0KLbOS9bug31g2mkoIj1GdUml3LvQ";
+
+// 2. DEVICE IDENTITY
+// We hardcode these. Your App/Frontend will map this Key/ID to a pretty display name.
+const char* device_id = "PLANT_1"; 
+const char* secret_key = "607ba157-955f-42eb-a2bb-8644ba23e45e"; 
+
+// 3. CALIBRATION
+const int WET = 1800;
+const int DRY = 3000;
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  // 4. THE CAPTIVE PORTAL LOGIC
+  WiFiManager wm;
+
+  // Since we are managing names in the App, we don't need custom fields here.
+  // Just standard WiFi setup.
+  wm.setConfigPortalTimeout(180); 
+
+  if (!wm.autoConnect("Sedna-Fat")) {
+    Serial.println("Failed to connect and hit timeout");
+    ESP.restart();
+  }
+
+  Serial.println("WiFi Connected! :)");
+  delay(2000);
+}
+
+void loop() {
+  int RAW = analogRead(32); 
+  int moisturePercent = constrain(map(RAW, DRY, WET, 0, 100), 0, 100);
+  
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+
+  if (isnan(h) || isnan(t)) {
+    Serial.println("❌ Failed To Read From DHT sensor");
+    delay(2000);
+    return;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(supabase_url);
+    
+    http.addHeader("apikey", supabase_key);
+    http.addHeader("Authorization", String("Bearer ") + supabase_key);
+    http.addHeader("Content-Type", "application/json");
+
+    StaticJsonDocument<300> doc;
+    // We still send these because the Supabase RPC expects them.
+    // Changed parameter to device_id based on your request
+    doc["p_device_id"] = device_id;
+    doc["p_secret_key"] = secret_key; 
+    doc["p_moisture"] = moisturePercent;
+    doc["p_temp"] = (int)t; 
+    doc["p_humidity"] = (int)h;
+    doc["p_light"] = 80;
+
+    String jsonPayload;
+    serializeJson(doc, jsonPayload);
+    
+    Serial.println("📡 Attempting to send to Supabase...");
+    int httpResponseCode = http.POST(jsonPayload);
+
+    if (httpResponseCode > 0) {
+      Serial.print("✅ Supabase Response Code: ");
+      Serial.println(httpResponseCode);
+      String response = http.getString();
+      Serial.println("Response body: " + response);
+    } else {
+      Serial.print("❌ Error on sending POST: ");
+      Serial.println(httpResponseCode);
+    }
+    
+    http.end();
+  } else {
+    Serial.println("📶 WiFi Disconnected!");
+  }
+
+  Serial.print("Humidity: "); Serial.print(h);
+  Serial.print("% | Temperature: "); Serial.print(t); Serial.println("°C");
+  
+  delay(5000); 
+}
